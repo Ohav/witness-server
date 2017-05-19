@@ -66,7 +66,7 @@ app.post('/scoring', function(req, res) {
     mongoConn.connect(uri, function(err, db) {
         console.log('logging into mongo to check if user exists');
 
-        var user = db.collection('users').findOne({name: req.body.userName});
+        var user = db.collection('users').findOne({sessionID: req.body.sessionID});
 
         if(user == null) {
             res.send('invalid user');
@@ -74,6 +74,7 @@ app.post('/scoring', function(req, res) {
 
         else {
             user.scoring = user.scoring + req.body.score;
+            db.collection('users').update({sessionID}, {$set: {score: user.scoring}});
             res.send('OK');
         }
     });
