@@ -65,18 +65,28 @@ app.post('/scoring', function(req, res) {
     console.log(req.body);
     mongoConn.connect(uri, function(err, db) {
         console.log('logging into mongo to check if user exists');
+        console.log(req.body.sessionID);
 
         var user = db.collection('users').findOne({sessionID: req.body.sessionID});
-
-        if(user == null) {
-            res.send('invalid user');
-        }
-
-        else {
-            user.scoring = user.scoring + req.body.score;
-            db.collection('users').update({sessionID}, {$set: {score: user.scoring}});
-            res.send('OK');
-        }
+        console.log(user);
+        user.then(
+            function(fulfilled)
+            {
+                console.log(fulfilled);
+                if(fulfilled == null) {
+                    console.log('User not found');
+                    res.send('invalid user');
+                }
+        
+                else {
+                    fulfilled.score = fulfilled.score + req.body.score;
+                    db.collection('users').update({sessionID: fulfilled.sessionID}, {$set: {score: fulfilled.score}});
+                    console.log('Updated user (' + fulfilled.sessionID + ") " + fulfilled.name);
+                    res.send('OK');
+                }
+            }
+        );
+        
     });
 });
 
