@@ -5,13 +5,13 @@
     <script>
         $(document).ready(function(){
             $("#btn_Try").click(function(){
-                $.ajax({url: "./users", type:'POST', data: {'sessionID' : '1111'}, success: function(result){
+                $.ajax({url: "./users", type:'POST', data: {'sessionID' : 'newID1'}, success: function(result){
                     $("#show").html(result);
                 }});
             });
             $("#btn_change_score").click(function() {
                 console.log('post score');
-                $.ajax({url: "./scoring", type:'POST', data: {'sessionID': 'Nosuchthing', 'score': 44}, success: function(result){
+                $.ajax({url: "./scoring", type:'POST', data: {'sessionID': 'newID', 'score': 44}, success: function(result){
                     $('#show').html(result);
                 }});
             });

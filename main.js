@@ -73,7 +73,6 @@ app.get('/users/:id', function(req, res) {
 // else: return error
 app.post('/users', function(req, res) {
     console.log('Adding a new user');
-    console.log(req.body);
 
     var newUser = {
         sessionID: req.body.sessionID,
@@ -89,14 +88,15 @@ app.post('/users', function(req, res) {
         var user = db.collection('users').findOne({sessionID: req.body.sessionID});
         user.then((fulfilled) => {
             // Checking to see if a user with that sessionID already exists
-            console.log(fulfilled);
             if(fulfilled != null) {
                 console.log("User with that sessionID already exists");
                 res.send('Error: sessionID already in use');
+                db.close();
             } else {
                 var result = db.collection('users').insertOne(newUser, function(err, req) {
                     console.log('Item with name ' + newUser['name'] + ' inserted');
                     res.send('OK');
+                    db.close();
                 });
             }
         });
@@ -111,24 +111,35 @@ app.post('/scoring', function(req, res) {
         console.log('logging into mongo to check if user exists');
 
         var user = db.collection('users').findOne({sessionID: req.body.sessionID});
-        console.log(user);
+        
         user.then((fulfilled) => {
-            console.log(fulfilled);
-            if(fulfilled == null) {
-                console.log('User not found');
-                res.send('Error: Invalid sessionID');
-            } else {
-                fulfilled.score = parseInt(fulfilled.score) + parseInt(req.body.score);
-                db.collection('users').update({sessionID: fulfilled.sessionID}, {$set: {score: fulfilled.score}});
-                console.log('Updated user (' + fulfilled.sessionID + ") " + fulfilled.name + ' with ' + req.body.score + ' points.');
-                res.send('OK');
+          if(fulfilled == null) {
+            console.log('User not found, creating new user');
+            var newUser = {
+              sessionID: req.body.sessionID,
+              name: req.body.userName,
+              score: parseInt(req.body.score)
+            };
+            if(newUser['name'] == undefined || newUser['name'] == '') {
+              newUser['name'] = 'Anonymous Mahanet User';
             }
-        });
 
-        db.close();
+            var result = db.collection('users').insertOne(newUser, function(err, req) {
+              console.log('Item with name ' + newUser['name'] + ' inserted - Through /scoring');
+              res.send('OK');
+              db.close();
+            });
+
+          } else {
+            fulfilled.score = parseInt(fulfilled.score) + parseInt(req.body.score);
+            db.collection('users').update({sessionID: fulfilled.sessionID}, {$set: {score: fulfilled.score}});
+            console.log('Updated user (' + fulfilled.sessionID + ") " + fulfilled.name + ' with ' + req.body.score + ' points.');
+            res.send('OK');
+            db.close();
+          }
+        });
     });
 });
-
 
 
 var port = 8080;
