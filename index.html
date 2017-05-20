@@ -15,6 +15,15 @@
                     $('#show').html(result);
                 }});
             });
+            $('#btn_get_user').click(function() {
+                console.log('Get user');
+                var uri = "./users/" + $('#sessionID').val();
+                $.ajax({url: uri, type:'GET'
+                    , success: (result) => {
+                        $('#showUser').html(result);
+                        console.log(result);
+                }});
+            });
             
         });
     </script>
@@ -22,9 +31,13 @@
     <title>Homepage</title>
 </head>
 <body>
- <button id="btn_Try" value="Click!!">Send user</button>
- <button id="btn_change_score" value="Click">Add 44 to score</button>
-<div id="show"></div>
-<button id="btnReports" onclick="window.location = './users'">View User list</button>
+  <button id="btn_Try" value="Click!!">Send user</button>
+  <button id="btn_change_score" value="Click">Add 44 to score</button>
+  <div id="show"></div>
+  <div>
+    <button id="btn_get_user">Get user with sessionID</button>
+    <input id="sessionID" type="text">
+    <div id='showUser'></div>
+  </div>
 </body>
 </html>

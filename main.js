@@ -21,34 +21,46 @@ app.get('/', function(req, res) {
 });
 
 
-// Either gets an empty request or a request with ID
-// If it got an empty request, returns every user in the db.
-// Else, returns a single user.
+/// Returns every user in the db
 app.get('/users', function(req, res) {
-    if(req.body.sessionID == undefined || req.body.sessionID == '') {
-        console.log('Request to pull users');
-        mongoConn.connect(uri, function(err, db) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    console.log('Request to pull all users');
 
-            var users = db.collection('users').find({}).sort({score: -1}).toArray()
-            console.log('query done');
+    mongoConn.connect(uri, function(err, db) {
+        var users = db.collection('users').find({}).sort({score: -1}).toArray();
 
-            users.then((fulfilled) => {
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-                res.send(fulfilled);
-                console.log('users sent');
-            });
-            db.close();
+        users.then((fulfilled) => {
+            res.send(fulfilled);
+            console.log('users sent');
         });
-    }
-    else {
+
+        db.close();
+    });
+});
+
+
+/// Gets a sessionID
+/// Returns that user, or an error
+app.get('/users/:id', function(req, res) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    console.log('Request to pull a single user');
+
+    if(req.params.id == undefined || req.params.id == '') {
+        console.log('User not sent - invalid sessionID');
+        res.send('Error: Invalid sessionID');
+    } else {
         mongoConn.connect(uri, function(err, db) {
-            var user = db.collection('users').findOne({sessionID: req.body.sessionID});
+            var user = db.collection('users').findOne({sessionID: req.params.id});
             user.then((fulfilled) => {
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-                console.log('User (' + fulfilled.sessionID + ') ' + fulfilled.name + ' sent.')
-                res.send(fulfilled);
+                if(fulfilled == undefined || fulfilled == '') {
+                    console.log('User not send - does not exist');
+                    res.send('Error: No such user');
+                } else {
+                    console.log('User (' + fulfilled.sessionID + ') ' + fulfilled.name + ' sent.')
+                    res.send(fulfilled);
+                }
             });
             db.close();
         });
