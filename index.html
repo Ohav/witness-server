@@ -5,13 +5,13 @@
     <script>
         $(document).ready(function(){
             $("#btn_Try").click(function(){
-                $.ajax({url: "./users", type:'POST', data: { 'userName' : 'Tomer', 'sessionID' : '23'}, success: function(result){
+                $.ajax({url: "./users", type:'POST', data: { 'userName' : '', 'sessionID' : '1515'}, success: function(result){
                     $("#show").html(result);
                 }});
             });
             $("#btn_change_score").click(function() {
                 console.log('post score');
-                $.ajax({url: "./scoring", type:'POST', data: {'sessionID': 'Something', 'score': 12}, success: function(result){
+                $.ajax({url: "./scoring", type:'POST', data: {'sessionID': 'Something', 'score': 44}, success: function(result){
                     $('#show').html(result);
                 }});
             });
@@ -23,7 +23,7 @@
 </head>
 <body>
  <button id="btn_Try" value="Click!!">Send user</button>
- <button id="btn_change_score" value="Click">Add 12 to score</button>
+ <button id="btn_change_score" value="Click">Add 44 to score</button>
 <div id="show"></div>
 <button id="btnReports" onclick="window.location = './users'">View User list</button>
 </body>
