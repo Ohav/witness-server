@@ -12,6 +12,7 @@
             $("#btn_change_score").click(function() {
                 console.log('post score');
                 $.ajax({url: "./scoring", type:'POST', data: {'sessionID': 'newID', 'score': 44}, success: function(result){
+                  console.log(result);
                     $('#show').html(result);
                 }});
             });

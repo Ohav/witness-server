@@ -105,9 +105,13 @@ app.post('/users', function(req, res) {
 
 /// Gets a sessionID and a score.
 /// If user with sessionID exists, updates the user's score with the amount sent (adds)
-/// Else, returns error
+/// Else, creates the user
+/// Returns the updated score
 app.post('/scoring', function(req, res) {
+  console.log('Request for scoring');
     mongoConn.connect(uri, function(err, db) {
+      console.log(err);
+
         console.log('logging into mongo to check if user exists');
 
         var user = db.collection('users').findOne({sessionID: req.body.sessionID});
@@ -126,7 +130,7 @@ app.post('/scoring', function(req, res) {
 
             var result = db.collection('users').insertOne(newUser, function(err, req) {
               console.log('Item with name ' + newUser['name'] + ' inserted - Through /scoring');
-              res.send('OK');
+              res.send({status: "OK", score: newUser.score});
               db.close();
             });
 
@@ -134,7 +138,7 @@ app.post('/scoring', function(req, res) {
             fulfilled.score = parseInt(fulfilled.score) + parseInt(req.body.score);
             db.collection('users').update({sessionID: fulfilled.sessionID}, {$set: {score: fulfilled.score}});
             console.log('Updated user (' + fulfilled.sessionID + ") " + fulfilled.name + ' with ' + req.body.score + ' points.');
-            res.send('OK');
+            res.send({status: "OK", score: fulfilled.score});
             db.close();
           }
         });
